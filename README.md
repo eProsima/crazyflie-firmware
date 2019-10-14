@@ -1,212 +1,105 @@
-# Crazyflie Firmware  [![Build Status](https://api.travis-ci.org/bitcraze/crazyflie-firmware.svg)](https://travis-ci.org/bitcraze/crazyflie-firmware)
+# Crazyflie micro-XRCE-DDS demo:
 
-This project contains the source code for the firmware used in the Crazyflie range of platforms, including
-the Crazyflie 2.X and the Roadrunner.
+## How to set-up the demo
 
-### Crazyflie 1.0 support
+You need the next dependencies:
 
-The 2017.06 release was the last release with Crazyflie 1.0 support. If you want
-to play with the Crazyflie 1.0 and modify the code, please clone this repo and
-branch off from the 2017.06 tag. 
-
-## Dependencies
-
-You'll need to use either the [Crazyflie VM](https://wiki.bitcraze.io/projects:virtualmachine:index),
-[the toolbelt](https://wiki.bitcraze.io/projects:dockerbuilderimage:index) or 
-install some ARM toolchain.
-
-### Install a toolchain
-
-#### OS X
-```bash
-brew tap PX4/homebrew-px4
-brew install gcc-arm-none-eabi
-```
-
-#### Debian/Ubuntu
-
-Tested on Ubuntu 14.04 64b, Ubuntu 16.04 64b, and Ubuntu 18.04 64b:
-
-For Ubuntu 14.04 :
-
-```bash
-sudo add-apt-repository ppa:terry.guo/gcc-arm-embedded
-sudo apt-get update
-sudo apt-get install libnewlib-arm-none-eabi
-```
-
-For Ubuntu 16.04 and Ubuntu 18.04:
-
+- Toolchain:
 ```bash
 sudo add-apt-repository ppa:team-gcc-arm-embedded/ppa
 sudo apt-get update
 sudo apt install gcc-arm-embedded
 ```
 
-Note: Do not use the `gcc-arm-none-eabi` package that is part of the Ubuntu repository as this is outdated.
+- Bridge:
+  - Give UDev permissions to the radio:
+  ```bash
+  sudo groupadd plugdev
+  sudo usermod -a -G plugdev $USER
+  ```
+  - You will need to log out and log in again in order to be a member of the plugdev group.
 
-#### Arch Linux
+  - Create a file named /etc/udev/rules.d/99-crazyradio.rules and add the following:
+  ```
+  # Crazyradio (normal operation)
+  SUBSYSTEM=="usb", ATTRS{idVendor}=="1915", ATTRS{idProduct}=="7777", MODE="0664", GROUP="plugdev"
+  # Bootloader
+  SUBSYSTEM=="usb", ATTRS{idVendor}=="1915", ATTRS{idProduct}=="0101", MODE="0664", GROUP="plugdev"
+  ```
+  To connect Crazyflie 2.0 via usb, create a file name /etc/udev/rules.d/99-crazyflie.rules and add the following:
+  ```SUBSYSTEM=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="5740", MODE="0664", GROUP="plugdev"```
+  - You can reload the udev-rules using the following:
+    - `sudo udevadm control --reload-rules`
+    - `sudo udevadm trigger`
 
+  - Install the bridge utility
+  ```bash
+  sudo apt-get install libusb-1.0-0-dev
+  git clone https://github.com/jfm92/micro-XRCE-DDS_PX4_Bridge
+  cd micro-XRCE-DDS_PX4_Bridge
+  git submodule update --init
+  make build
+  ```
+
+- Firmware:
 ```bash
-sudo pacman -S community/arm-none-eabi-gcc community/arm-none-eabi-gdb community/arm-none-eabi-newlib
-```
-
-#### Windows
-
-The GCC ARM Embedded toolchain for Windows is available at [launchpad.net](https://launchpad.net/gcc-arm-embedded/+download). Download the zip archive rather than the executable installer. There are a few different systems for running UNIX-style shells and build systems on Windows; the instructions below are for [Cygwin](https://www.cygwin.com/).
-
-Install Cygwin with [setup-x86_64.exe](https://www.cygwin.com/setup-x86_64.exe). Use the standard `C:\cygwin64` installation directory and install at least the `make` and `git` packages.
-
-Download the latest `gcc-arm-none-eabi-*-win32.zip` archive from [launchpad.net](https://launchpad.net/gcc-arm-embedded/+download). Create the directory `C:\cygwin64\opt\gcc-arm-none-eabi` and extract the contents of the zip file to it.
-
-Launch a Cygwin terminal and run the following to append to your `~/.bashrc` file:
-```bash
-echo '[[ $PATH == */opt/gcc-arm-none-eabi/bin* ]] || export PATH=/opt/gcc-arm-none-eabi/bin:$PATH' >>~/.bashrc
-source ~/.bashrc
-```
-
-Verify the toolchain installation with `arm-none-eabi-gcc --version`
-
-### Cloning
-
-This repository uses git submodules. Clone with the `--recursive` flag
-
-```bash
-git clone --recursive https://github.com/bitcraze/crazyflie-firmware.git
-```
-
-If you already have cloned the repo without the `--recursive` option, you need to 
-get the submodules manually
-
-```bash
+https://github.com/eProsima/crazyflie-firmware -b cf_micro-xrce-dds
 cd crazyflie-firmware
 git submodule init
 git submodule update
 ```
 
+## How to flash:
 
-## Compiling
-
-### Crazyflie 2.X
-
-This is the default build so just running ```make``` is enough or:
+- Compile the firmware by executing on the firmware folder the next command:
+`make build`
+- Unplug the battery.
+- Push the reset button, and at the same time connect the USB cable.
+- Only one blue LED must be on and blinky. After a few seconds it will start blinking faster and now is on DFU mode.
+- To check if it's on DUF mode, execute the next command: `lsusb`
+  - This should return somenthing like this:
+  ```bash
+  Bus 001 Device 051: ID 0483:df11 STMicroelectronics STM Device in DFU Mode
+  ```
+- Now flash using the next command: ``sudo dfu-util -d 0483:df11 -a 0 -s 0x08000000 -D cf2.bin``
+  - This should return somenthing like this:
 ```bash
-make PLATFORM=cf2
+Copyright 2005-2009 Weston Schmidt, Harald Welte and OpenMoko Inc.
+Copyright 2010-2019 Tormod Volden and Stefan Schmidt
+This program is Free Software and has ABSOLUTELY NO WARRANTY
+Please report bugs to http://sourceforge.net/p/dfu-util/tickets/
+dfu-util: Invalid DFU suffix signature
+dfu-util: A valid DFU suffix will be required in a future dfu-util release!!!
+Opening DFU capable USB device...
+ID 0483:df11
+Run-time device DFU version 011a
+Claiming USB DFU Interface...
+Setting Alternate Setting #0 ...
+Determining device status: state = dfuERROR, status = 10
+dfuERROR, clearing status
+Determining device status: state = dfuIDLE, status = 0
+dfuIDLE, continuing
+DFU mode device DFU version 011a
+Device returned transfer size 2048
+DfuSe interface name: "Internal Flash  "
+Downloading to address = 0x08000000, size = 350776
+Download	[=========================] 100%       350776 bytes
+Download done.
+File downloaded successfully
 ```
+- Now the drone is correctly flashed, if you reset, it should start properly.
 
-or with the toolbelt
+## Set-up the demo:
 
-```bash
-tb make PLATFORM=cf2
-```
-
-### Roadrunner
-
-Use the ```tag``` platform
-
-```bash
-make PLATFORM=tag
-```
-
-or with the toolbelt
-
-```bash
-tb make PLATFORM=tag
-```
-
-
-### config.mk
-To create custom build options create a file called `config.mk` in the `tools/make/`
-folder and fill it with options. E.g. 
-```
-PLATFORM=CF2
-DEBUG=1
-CLOAD=0
-```
-More information can be found on the 
-[Bitcraze wiki](http://wiki.bitcraze.io/projects:crazyflie2:index)
-
-## Folder description:
-```
-./              | Root, contains the Makefile
- + init         | Contains the main.c
- + config       | Configuration files
- + drivers      | Hardware driver layer
- |  + src       | Drivers source code
- |  + interface | Drivers header files. Interface to the HAL layer
- + hal          | Hardware abstraction layer
- |  + src       | HAL source code
- |  + interface | HAL header files. Interface with the other parts of the program
- + modules      | Firmware operating code and headers
- |  + src       | Firmware tasks source code and main.c
- |  + interface | Operating headers. Configure the firmware environment
- + utils        | Utils code. Implement utility block like the console.
- |  + src       | Utils source code
- |  + interface | Utils header files. Interface with the other parts of the program
- + platform     | Platform specific files. Not really used yet
- + tools        | Misc. scripts for LD, OpenOCD, make, version control, ...
- |              | *** The two following folders contains the unmodified files ***
- + lib          | Libraries
- |  + FreeRTOS  | Source FreeRTOS folder. Cleaned up from the useless files
- |  + STM32...  | Library folders of the ST STM32 peripheral libs
- |  + CMSIS     | Core abstraction layer
-```
-# Make targets:
-```
-all        : Shortcut for build
-compile    : Compile cflie.hex. WARNING: Do NOT update version.c
-build      : Update version.c and compile cflie.elf/hex
-clean_o    : Clean only the Objects files, keep the executables (ie .elf, .hex)
-clean      : Clean every compiled files
-mrproper   : Clean every compiled files and the classical editors backup files
-
-cload      : If the crazyflie-clients-python is placed on the same directory level and 
-             the Crazyradio/Crazyradio PA is inserted it will try to flash the firmware 
-             using the wireless bootloader.
-flash      : Flash .elf using OpenOCD
-halt       : Halt the target using OpenOCD
-reset      : Reset the target using OpenOCD
-openocd    : Launch OpenOCD
-```
-
-# Unit testing
-
-## Running all unit tests
-    
-With the environment set up locally
-
-        make unit
-        
-with the docker builder image and the toolbelt
-
-        tb make unit
-        
-## Running one unit test
-       
-When working with one specific file it is often convenient to run only one unit test
-       
-       make unit FILES=test/utils/src/test_num.c
-
-or with the toolbelt        
-
-       tb make unit FILES=test/utils/src/test_num.c
-              
-## Running unit tests with specific build settings
-      
-Defines are managed by make and are passed on to the unit test code. Use the 
-normal ways of configuring make when running tests. For instance to run test
-for Crazyflie 1
-
-      make unit LPS_TDOA_ENABLE=1
-
-## Dependencies
-
-Frameworks for unit testing and mocking are pulled in as git submodules.
-
-The testing framework uses ruby and rake to generate and run code. 
-
-To minimize the need for installations and configuration, use the docker builder
-image (bitcraze/builder) that contains all tools needed. All scripts in the 
-tools/build directory are intended to be run in the image. The 
-[toolbelt](https://wiki.bitcraze.io/projects:dockerbuilderimage:index) makes it
-easy to run the tool scripts.
+**Is important to respect the order of execution, if not the demo won't work**
+- Connect the antenna to the USB port of the PC.
+- Execute the bridge by typing the next command on the bridge folder: `make run`
+  - This should return somenthing like this:
+  ```bash
+  ./build/bridge
+  Pseudo-Serial device opend at /dev/pts/0
+  Waiting for messages...
+  ```
+  (It could return an error of libusb, but is not problem.)
+- Execute the micro-XRCE-DDS Agent by typing the next command: `MicroXRCEAgent serial --dev /dev/pts/0`
+- Finally turn on the drone and after a few seconds, it should connect to the Agent and start the publication process.
