@@ -11,10 +11,8 @@
 //==================================================================
 int64_t uxr_millis(void)
 {
-    int64_t timestamp;
-    timestamp = xTaskGetTickCount()/portTICK_RATE_MS;
-    //return uxr_nanos() / 1000000;
-    return timestamp;
+  uint64_t time = usecTimestamp();
+  return time/1000;
 }
 
 int64_t uxr_nanos(void)
@@ -33,9 +31,7 @@ int64_t uxr_nanos(void)
 
     return (current_time - epoch_time) * 100;
 #else
-    /*struct timespec ts;
-    gettime(CLOCK_REALTIME, &ts);
-    return (((int64_t)ts.tv_sec) * 1000000000) + ts.tv_nsec;*/
-    return uxr_millis()*1000000;
+  uint64_t time = usecTimestamp();
+  return time * 1000;
 #endif
 }
