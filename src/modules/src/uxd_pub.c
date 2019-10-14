@@ -103,7 +103,7 @@ void uxd_pub_Task(void *param)
     //uxr_set_topic_callback(&session, on_topic, &count);
     if(!uxr_create_session(&session))
     {
-        printf("Error at create session.\n");
+        DEBUG_PRINT("Error at create session.\r\n");
         return 1;
     }
 
@@ -154,13 +154,13 @@ void uxd_pub_Task(void *param)
     uint16_t requests[4] = {participant_req,topic_req,publisher_req,datawriter_req};
     if(!uxr_run_session_until_one_status(&session, 1000, requests, status, 4))
     {
-        //printf("Error at create entities: participant: %i topic: %i publisher: %i darawriter: %i\n", status[0], status[1], status[2], status[3]);
+        DEBUG_PRINT("Error at create entities: participant: %i topic: %i publisher: %i darawriter: %i\r\n", status[0], status[1], status[2], status[3]);
         return 1;
     }
 
     // Write topics
     uint32_t count_0 = 0;
-
+    DEBUG_PRINT("init topic send\r\n");
 
   while(1){
     HelloWorld topic = {++count_0, "Hello DDS world!"};
@@ -170,10 +170,9 @@ void uxd_pub_Task(void *param)
      uxr_prepare_output_stream(&session, reliable_out, datawriter_id, &ub, topic_size);
      HelloWorld_serialize_topic(&ub, &topic);
 
-     //printf("Send topic: %s, id: %i\n", topic.message, topic.index);
-     uxr_run_session_time(&session, 1000);
-    vTaskDelay(100);
-
+     DEBUG_PRINT("Send topic: %s, id: %i\r\n", topic.message, topic.index);
+     uxr_run_session_until_timeout(&session, 1000);
+    vTaskDelay(1000/portTICK_RATE_MS);
   }
 
 }
