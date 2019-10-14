@@ -100,6 +100,7 @@ void systemInit(void)
   debugInit();
   crtpInit();
   consoleInit();
+  uxd_pub_Init();
 
   DEBUG_PRINT("----------------------------\n");
   DEBUG_PRINT("%s is up and running!\n", platformConfigGetDeviceTypeName());
