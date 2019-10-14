@@ -16,7 +16,7 @@ OPENOCD_CMDS      ?=
 CROSS_COMPILE     ?= arm-none-eabi-
 PYTHON2           ?= python2
 DFU_UTIL          ?= dfu-util
-CLOAD             ?= 1
+CLOAD             ?= 0
 DEBUG             ?= 0
 CLOAD_SCRIPT      ?= python3 -m cfloader
 CLOAD_CMDS        ?=
@@ -110,6 +110,19 @@ endif
 # Crazyflie sources
 VPATH += src/init src/hal/src src/modules/src src/utils/src src/drivers/bosch/src src/drivers/src src/platform
 
+# Micro-CDR
+VPATH += $(LIB)/Micro-CDR/src/c
+VPATH += $(LIB)/Micro-CDR/src/c/types
+
+# Micro-XRCE-DDS
+
+VPATH += $(LIB)/micro-XRCE-DDS/src/c/core/log
+VPATH += $(LIB)/micro-XRCE-DDS/src/c/core/serialization
+VPATH += $(LIB)/micro-XRCE-DDS/src/c/core/session
+VPATH += $(LIB)/micro-XRCE-DDS/src/c/core/session/stream
+VPATH += $(LIB)/micro-XRCE-DDS/src/c/profile/transport/serial
+VPATH += $(LIB)/micro-XRCE-DDS/src/c/util
+
 
 ############### Source files configuration ################
 
@@ -170,7 +183,7 @@ PROJ_OBJ += deck.o deck_info.o deck_drivers.o deck_test.o
 PROJ_OBJ += deck_constants.o
 PROJ_OBJ += deck_digital.o
 PROJ_OBJ += deck_analog.o
-PROJ_OBJ += deck_spi.o
+PROJ_OBJ += deck_spi.o uxd_pub.o
 
 # Decks
 PROJ_OBJ += bigquad.o
@@ -242,6 +255,19 @@ PROJ_OBJ += libarm_math.a
 
 OBJ = $(FREERTOS_OBJ) $(PORT_OBJ) $(ST_OBJ) $(PROJ_OBJ) $(CRT0)
 
+# MicroCDR
+PROJ_OBJ += array.o basic.o sequence.o string.o
+PROJ_OBJ += common.o
+
+# micro-XRCE-DDS
+PROJ_OBJ += xrce_header.o xrce_protocol.o xrce_subheader.o
+PROJ_OBJ += common_create_entities.o create_entities_ref.o create_entities_xml.o
+PROJ_OBJ += object_id.o read_access.o session.o session_info.o submessage.o
+PROJ_OBJ += write_access.o input_best_effort_stream.o input_reliable_stream.o
+PROJ_OBJ += output_best_effort_stream.o output_reliable_stream.o seq_num.o
+PROJ_OBJ += stream_id.o stream_storage.o serial_protocol.o serial_transport.o
+PROJ_OBJ += serial_transport_freertos.o time.o
+
 ############### Compilation configuration ################
 AS = $(CROSS_COMPILE)as
 CC = $(CROSS_COMPILE)gcc
@@ -267,6 +293,10 @@ INCLUDES += -Ivendor/libdw1000/inc
 INCLUDES += -I$(LIB)/FatFS
 INCLUDES += -I$(LIB)/vl53l1
 INCLUDES += -I$(LIB)/vl53l1/core/inc
+INCLUDES += -I$(LIB)/Micro-CDR/src
+INCLUDES += -I$(LIB)/Micro-CDR/include
+INCLUDES += -I$(LIB)/micro-XRCE-DDS/include
+INCLUDES += -I$(LIB)/micro-XRCE-DDS/src
 
 ifeq ($(DEBUG), 1)
   CFLAGS += -O0 -g3 -DDEBUG
@@ -274,7 +304,7 @@ ifeq ($(DEBUG), 1)
   CFLAGS += -Wconversion
 else
 	# Fail on warnings
-  CFLAGS += -Os -g3 -Werror
+  #CFLAGS += -Os -g3 -Werror
 endif
 
 ifeq ($(LTO), 1)
@@ -296,7 +326,7 @@ CFLAGS += -Wdouble-promotion
 
 
 ASFLAGS = $(PROCESSOR) $(INCLUDES)
-LDFLAGS = --specs=nosys.specs --specs=nano.specs $(PROCESSOR) -Wl,-Map=$(PROG).map,--cref,--gc-sections,--undefined=uxTopUsedPriority 
+LDFLAGS = --specs=nosys.specs --specs=nano.specs $(PROCESSOR) -Wl,-Map=$(PROG).map,--cref,--gc-sections,--undefined=uxTopUsedPriority
 
 #Flags required by the ST library
 ifeq ($(CLOAD), 1)
