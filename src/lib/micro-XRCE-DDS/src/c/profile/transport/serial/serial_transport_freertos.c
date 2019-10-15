@@ -11,6 +11,7 @@
 
 #include "syslink.h"
 #include "radiolink.h"
+#include "string.h"
 
 
 
@@ -22,7 +23,7 @@ bool uxr_init_serial_platform(struct uxrSerialPlatform* platform, int fd, uint8_
 
 bool uxr_close_serial_platform(struct uxrSerialPlatform* platform)
 {
-    //TODO
+    //TODO Is not necessary to close or open the platform on this fork of freeRTOS
     return true;
 }
 
@@ -33,8 +34,6 @@ size_t uxr_write_serial_data_platform(uxrSerialPlatform* platform, uint8_t* buf,
   send_pkg.header = CRTP_HEADER(8, 0);
   int index_send=0;
   int i=0;
-  char bufi[15];
-
 
   while(1){
     send_pkg.data[i]=buf[index_send];

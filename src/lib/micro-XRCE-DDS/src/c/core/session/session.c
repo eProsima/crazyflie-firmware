@@ -123,7 +123,6 @@ bool uxr_create_session(uxrSession* session)
 
     bool received = wait_session_status(session, create_session_buffer, ucdr_buffer_length(&ub), UXR_CONFIG_MAX_SESSION_CONNECTION_ATTEMPTS);
     bool created = received && UXR_STATUS_OK == session->info.last_requested_status;
-    if(created==1) uart1SendData(9, "created\r\n");
     return created;
 }
 
@@ -171,7 +170,6 @@ bool uxr_run_session_time(uxrSession* session, int timeout_ms)
     {
          timeout = !listen_message_reliably(session, timeout_ms);
     }
-
     return uxr_output_streams_confirmed(&session->streams);
 }
 
@@ -425,9 +423,6 @@ inline bool send_message(const uxrSession* session, uint8_t* buffer, size_t leng
 {
     bool sent = session->comm->send_msg(session->comm->instance, buffer, length);
     UXR_DEBUG_PRINT_MESSAGE((sent) ? UXR_SEND : UXR_ERROR_SEND, buffer, length, session->info.key);
-    /*char buf[256];
-    sprintf(buf,"send_message: %i\r\n",sent);
-    uart1SendData(sizeof(buf), buf);*/
     return sent;
 }
 
@@ -436,10 +431,7 @@ inline bool recv_message(const uxrSession* session, uint8_t**buffer, size_t* len
     bool received = session->comm->recv_msg(session->comm->instance, buffer, length, poll_ms);
     if(received)
     {
-      /*char buf[256];
-      sprintf(buf,"recv_message: %i\r\n",received);
-      uart1SendData(sizeof(buf), buf);*/
-        UXR_DEBUG_PRINT_MESSAGE(UXR_RECV, *buffer, *length, session->info.key);
+      UXR_DEBUG_PRINT_MESSAGE(UXR_RECV, *buffer, *length, session->info.key);
     }
     return received;
 }
