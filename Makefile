@@ -32,6 +32,7 @@ LPS_TDOA3_ENABLE  ?= 0
 include tools/make/platform.mk
 
 CFLAGS += -DCRAZYFLIE_FW
+#CFLAGS += -DDEBUG_PRINT_ON_UART
 
 ######### Stabilizer configuration ##########
 ## These are set by the platform (see tools/make/platforms/*.mk), can be overwritten here
@@ -110,6 +111,7 @@ endif
 # Crazyflie sources
 VPATH += src/init src/hal/src src/modules/src src/utils/src src/drivers/bosch/src src/drivers/src src/platform
 
+
 # Micro-CDR
 VPATH += $(LIB)/Micro-CDR/src/c
 VPATH += $(LIB)/Micro-CDR/src/c/types
@@ -183,7 +185,7 @@ PROJ_OBJ += deck.o deck_info.o deck_drivers.o deck_test.o
 PROJ_OBJ += deck_constants.o
 PROJ_OBJ += deck_digital.o
 PROJ_OBJ += deck_analog.o
-PROJ_OBJ += deck_spi.o uxd_pub.o
+PROJ_OBJ += deck_spi.o uxd_att.o
 
 # Decks
 PROJ_OBJ += bigquad.o

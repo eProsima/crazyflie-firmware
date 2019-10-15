@@ -54,6 +54,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "config.h"
+#include "crtp.h"
+#include "log.h"
+#include "crc.h"
+#include "worker.h"
+#include "num.h"
+
+#include "console.h"
+#include "cfassert.h"
+#include "debug.h"
+
 uxrSession session;
 uxrSerialTransport transport;
 uxrSerialPlatform serial_platform;
@@ -93,7 +104,7 @@ void uxd_pub_Task(void *param)
 {
 
   vTaskDelay(10000);
-  if(!uxr_init_serial_transport(&transport, &serial_platform, 0, 0, 1))
+  /*if(!uxr_init_serial_transport(&transport, &serial_platform, 0, 0, 1))
     {
 
         return 1;
@@ -160,10 +171,10 @@ void uxd_pub_Task(void *param)
 
     // Write topics
     uint32_t count_0 = 0;
-    DEBUG_PRINT("init topic send\r\n");
-
+    DEBUG_PRINT("init topic send\r\n");*/
+    static int pitchid, rollid;
   while(1){
-    HelloWorld topic = {++count_0, "Hello DDS world!"};
+    /*HelloWorld topic = {++count_0, "Hello DDS world!"};
 
      ucdrBuffer ub;
      uint32_t topic_size = HelloWorld_size_of_topic(&topic, 0);
@@ -171,7 +182,15 @@ void uxd_pub_Task(void *param)
      HelloWorld_serialize_topic(&ub, &topic);
 
      DEBUG_PRINT("Send topic: %s, id: %i\r\n", topic.message, topic.index);
-     uxr_run_session_until_timeout(&session, 1000);
+     uxr_run_session_until_timeout(&session, 1000);*/
+     pitchid = logGetVarId("stabilizer", "pitch");
+     rollid = logGetVarId("stabilizer", "roll");
+     yawid = logGetVarId("stabilizer", "yaw");
+     float pitch = logGetFloat(pitchid);
+     float roll  = logGetFloat(rollid);
+     float yaw  = logGetFloat(rollid);
+     DEBUG_PRINT("pitch %f , roll %f\r\n",pitch,roll);
+
     vTaskDelay(1000/portTICK_RATE_MS);
   }
 
