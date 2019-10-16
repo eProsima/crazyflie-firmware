@@ -47,6 +47,7 @@ https://github.com/eProsima/crazyflie-firmware -b cf_micro-xrce-dds
 cd crazyflie-firmware
 git submodule init
 git submodule update
+make PLATFORM=cf2
 ```
 
 ## How to flash:
