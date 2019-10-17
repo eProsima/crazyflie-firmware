@@ -88,7 +88,7 @@
 
 #define SYSLINK_TASK_PRI        3
 #define USBLINK_TASK_PRI        3
-#define UXD_ATT__PRI            2
+#define UXD_ATT__PRI            3
 
 // Not compiled
 #if 0
