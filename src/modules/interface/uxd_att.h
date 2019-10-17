@@ -5,10 +5,17 @@
 
 typedef struct Vector3
 {
-    double x;
-    double y;
-    double z;
+    float roll;
+    float pitch;
+    float yaw;
 } Vector3;
+
+typedef struct Vector3_odometry
+{
+    float x;
+    float y;
+    float z;
+} Vector3_odo;
 
 struct ucdrBuffer;
 
