@@ -32,18 +32,18 @@ sudo apt install gcc-arm-embedded
     - `sudo udevadm control --reload-rules`
     - `sudo udevadm trigger`
 
-  - Install the bridge utility
+  - Install the Crazyflie client bridge
   ```bash
   sudo apt-get install libusb-1.0-0-dev
-  git clone https://github.com/jfm92/micro-XRCE-DDS_PX4_Bridge
-  cd micro-XRCE-DDS_PX4_Bridge
-  git submodule update --init
-  make build
+  sudo apt-get install python3 python3-pip python3-pyqt5 python3-pyqt5.qtsvg
+  git clone https://github.com/eProsima/crazyflie-clients-python -b Micro-XRCE-DDS_Bridge
+  cd crazyflie-clients-python
+  pip3 install -e .
   ```
 
 - Firmware:
 ```bash
-https://github.com/eProsima/crazyflie-firmware -b cf_micro-xrce-dds
+git clone https://github.com/eProsima/crazyflie-firmware -b cf_micro-xrce-dds
 cd crazyflie-firmware
 git submodule init
 git submodule update
@@ -92,15 +92,58 @@ File downloaded successfully
 
 ## Set-up the demo:
 
-**Is important to respect the order of execution, if not the demo won't work**
-- Connect the antenna to the USB port of the PC.
-- Execute the bridge by typing the next command on the bridge folder: `make run`
-  - This should return somenthing like this:
-  ```bash
-  ./build/bridge
-  Pseudo-Serial device opend at /dev/pts/0
-  Waiting for messages...
-  ```
-  (It could return an error of libusb, but is not problem.)
-- Execute the micro-XRCE-DDS Agent by typing the next command: `MicroXRCEAgent serial --dev /dev/pts/0`
-- Finally turn on the drone and after a few seconds, it should connect to the Agent and start the publication process.
+- Attach the [flowdeck](https://www.bitcraze.io/flow-deck-v2/) sensor to the drone.
+
+- Execute the Crazyflie client by typing the next command on the client folder: `python3 bin/cfclient`
+
+- Once you execute the command, this should return somenthing like this:
+```bash
+INFO:cfclient.gui:Disabling STL printouts
+INFO:cfclient.utils.input.inputreaders:Input readers: ['linuxjsdev', 'pysdl2']
+INFO:cfclient.utils.input.inputreaders:Successfully initialized [linuxjsdev]
+INFO:cfclient.utils.input.inputreaders:Could not initialize [pysdl2]: No SDL2 support on Linux
+INFO:cfclient.utils.input.inputinterfaces:Found interfaces: ['leapmotion', 'wiimote', 'zmqpull']
+INFO:cfclient.utils.input.inputinterfaces:Could not initialize [leapmotion]: Leap Motion library probably not installed (No module named 'leapsdk')
+INFO:cfclient.utils.input.inputinterfaces:Could not initialize [wiimote]: Missing cwiid (wiimote) driver No module named 'cwiid'
+INFO:cfclient.utils.config:Dist config read from /home/juan/client_bridge/crazyflie-clients-python/src/cfclient/configs/config.json
+INFO:cfclient.utils.config:Config file read from [/home/juan/.config/cfclient/config.json]
+INFO:cfclient.utils.input.inputinterfaces:Could not initialize [zmqpull]: ZMQ input disabled in config file
+============= Micro-XRCE-DDS bridge port: /dev/pts/0 =============
+INFO:cfclient.utils.zmq_param:Biding ZMQ for parameters at tcp://*:1213
+INFO:cfclient.utils.zmq_led_driver:Biding ZMQ for LED driverat tcp://*:1214
+INFO:cfclient.utils.input:Using device blacklist [(VirtualBox|VMware)]
+INFO:cflib.crtp.radiodriver:v0.53 dongle with serial N/A found
+INFO:cfclient.ui.tabs.QualisysTab:Switching Flight Mode to: FlightModeStates.DISCONNECTED
+INFO:cflib.drivers.cfusb:Looking for devices....
+```
+- The serial port which will handle the micro-XRCE-DDS communication is the `/dev/pts/0`, as you can see on the console.
+
+- On another console, open a micro-XRCE-DDS Agent which use serial communications, and connects to the bridge port: `MicroXRCEAgent serial --dev /dev/pts/0`
+
+- Go to the graphical interface and push on the on scan button. If the radio is set-up properly, on the dropdown menu of the left you should the radio: `radio://0/80/2M`.
+
+- Push on connect.
+
+- Automatically the micro-XRCE-DDS client on the drone will set-up the communication and it will start the sending process of the topics.
+
+## How to fly the drone with assisted fly:
+
+Fly the drone without assisted flight is a very difficult task. To avoid this problem the client offer us different ways of flight.
+- **Altitude hold:** This mode will try to maintain the same altitude base on the measures of the barometer. It as a precision of +-15 cm, so the drone can bounce while is flying due to the atmospheric pressure variations.
+
+- **Position hold:** This mode will try to maintain the position set, compensating external force that can modify the position.
+
+- **Hover:** This mode requires the flowdeck module, to be use. Basically, it will maintain constantly the same distance from the floor. This will make very easy to fly the drone, avoiding constantly compensate the altitude.
+
+All of the previous mode need a controller to be used. So, you can use a PS3/PS4, Xbox 360/Xbox One or a regular Joystick controller. First we need to connect to the computer, you can use by wired or Bluetooth connection.
+
+After connect it, is necessary to configure it. To do so, go to `Input Device -> Normal -> Input map ` and check the controller that you want to use. (Note: Xbox One controller use the Xbox 360 input map).
+On the other hand, if you want to set your custom controls, go to: `Input Device -> Configure device mapping`
+
+Now is time to flight, theses are the input map by default:
+- Left joystick: Controls pitch(Vertical axis) and roll(Horizontal Axis).
+- Right joystick: Controls thrust(Vertical axis)  and yaw(Horizontal Axis).
+- A button(Xbox) or X button(PS): Controls the special function, that you set on the client.
+  - If you are on altitude mode, you can press the special button and set your altitude by increasing or decreasing the thrust.
+  - If you are on position mode, when you push the special button, will set this position and will try to maintain.
+  - If you are on hover mode, and push the special button, will perform a take off and will be stable at 40 cm.
