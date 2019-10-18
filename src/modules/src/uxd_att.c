@@ -65,6 +65,7 @@ static void uxd_att_task(void *param){
 
 //Init micro-XRCE-DDS session.
   vTaskDelay(10000);
+
   if(!uxr_init_serial_transport(&transport, &serial_platform, 0, 0, 1)){
     DEBUG_PRINT("Error: Init serial transport fail \r\n");
     vTaskSuspend( NULL );//Suspend this task to avoid future crash.
@@ -253,11 +254,11 @@ static bool Point32_odo_serialize_topic(ucdrBuffer* writer, const Point32_odo* t
 static uint32_t Point32_size_of_topic(const Point32* topic, uint32_t size)
 {
     uint32_t previousSize = size;
-    size += ucdr_alignment(size, 8) + 8;
+    size += ucdr_alignment(size, 4) + 4;
 
-    size += ucdr_alignment(size, 8) + 8;
+    size += ucdr_alignment(size, 4) + 4;
 
-    size += ucdr_alignment(size, 8) + 8;
+    size += ucdr_alignment(size, 4) + 4;
 
     return size - previousSize;
 }
@@ -265,11 +266,11 @@ static uint32_t Point32_size_of_topic(const Point32* topic, uint32_t size)
 static uint32_t Point32_odo_size_of_topic(const Point32_odo* topic, uint32_t size)
 {
     uint32_t previousSize = size;
-    size += ucdr_alignment(size, 8) + 8;
+    size += ucdr_alignment(size, 4) + 4;
 
-    size += ucdr_alignment(size, 8) + 8;
+    size += ucdr_alignment(size, 4) + 4;
 
-    size += ucdr_alignment(size, 8) + 8;
+    size += ucdr_alignment(size, 4) + 4;
 
     return size - previousSize;
 }
