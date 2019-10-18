@@ -65,6 +65,9 @@ static void uxd_att_task(void *param){
 
 //Init micro-XRCE-DDS session.
   vTaskDelay(10000);
+  int radio_connected = logGetVarId("radio", "isConnected");
+  while(!logGetUint(radio_connected)) vTaskDelay(100);
+  DEBUG_PRINT("Radio connected\r\n");
 
   if(!uxr_init_serial_transport(&transport, &serial_platform, 0, 0, 1)){
     DEBUG_PRINT("Error: Init serial transport fail \r\n");
