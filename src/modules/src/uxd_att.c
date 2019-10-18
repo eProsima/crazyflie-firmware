@@ -50,10 +50,10 @@ uxrSerialTransport transport;
 uxrSerialPlatform serial_platform;
 
 static void uxd_att_task(void *param);
-static bool Vector3_serialize_topic(ucdrBuffer* writer, const Vector3* topic);
-static uint32_t Vector3_size_of_topic(const Vector3* topic, uint32_t size);
-static bool Vector3_odo_serialize_topic(ucdrBuffer* writer,const Vector3_odo* topic);
-static uint32_t Vector3_odo_size_of_topic(const Vector3_odo* topic, uint32_t size);
+static bool Point32_serialize_topic(ucdrBuffer* writer, const Point32* topic);
+static uint32_t Point32_size_of_topic(const Point32* topic, uint32_t size);
+static bool Point32_odo_serialize_topic(ucdrBuffer* writer,const Point32_odo* topic);
+static uint32_t Point32_odo_size_of_topic(const Point32_odo* topic, uint32_t size);
 
 
 void uxd_att_init(){
@@ -108,7 +108,7 @@ static void uxd_att_task(void *param){
   const char* topic_xml = "<dds>"
                               "<topic>"
                                   "<name>rt/drone/robot_pose</name>"
-                                  "<dataType>geometry_msgs::msg::dds_::Vector3_</dataType>"
+                                  "<dataType>geometry_msgs::msg::dds_::Point32_</dataType>"
                               "</topic>"
                           "</dds>";
   uint16_t topic_req = uxr_buffer_create_topic_xml(&session, reliable_out,
@@ -119,7 +119,7 @@ static void uxd_att_task(void *param){
   const char* topic_xml_odo = "<dds>"
                               "<topic>"
                                   "<name>rt/drone/odometry</name>"
-                                  "<dataType>geometry_msgs::msg::dds_::Vector3_ </dataType>"
+                                  "<dataType>geometry_msgs::msg::dds_::Point32_</dataType>"
                               "</topic>"
                           "</dds>";
   uint16_t topic_req_odo = uxr_buffer_create_topic_xml(&session, reliable_out,
@@ -142,7 +142,7 @@ static void uxd_att_task(void *param){
                                        "<topic>"
                                            "<kind>NO_KEY</kind>"
                                            "<name>rt/drone/robot_pose</name>"
-                                           "<dataType>geometry_msgs::msg::dds_::Vector3_</dataType>"
+                                           "<dataType>geometry_msgs::msg::dds_::Point32_</dataType>"
                                        "</topic>"
                                    "</data_writer>"
                                "</dds>";
@@ -160,7 +160,7 @@ static void uxd_att_task(void *param){
                                        "<topic>"
                                            "<kind>NO_KEY</kind>"
                                            "<name>rt/drone/odometry</name>"
-                                           "<dataType>geometry_msgs::msg::dds_::Vector3_</dataType>"
+                                           "<dataType>geometry_msgs::msg::dds_::Point32_</dataType>"
                                        "</topic>"
                                    "</data_writer>"
                                "</dds>";
@@ -202,20 +202,20 @@ static void uxd_att_task(void *param){
     float y     = logGetFloat(Yid);
     float z     = logGetFloat(Zid);
 
-    Vector3 cmd = {pitch,roll,yaw};
-    Vector3_odo cmd_odo = {x,y,z};
+    Point32 cmd = {pitch,roll,yaw};
+    Point32_odo cmd_odo = {x,y,z};
 
     ucdrBuffer ub;
 
-    uint32_t topic_size = Vector3_size_of_topic(&cmd,0);
+    uint32_t topic_size = Point32_size_of_topic(&cmd,0);
     uxr_prepare_output_stream(&session, reliable_out, datawriter_id,
                               &ub, topic_size);
-    Vector3_serialize_topic(&ub,&cmd);
+    Point32_serialize_topic(&ub,&cmd);
 
-    uint32_t topic_size_odo = Vector3_odo_size_of_topic(&cmd_odo, 0); //We can reuse this function.
+    uint32_t topic_size_odo = Point32_odo_size_of_topic(&cmd_odo, 0); //We can reuse this function.
     uxr_prepare_output_stream(&session, reliable_out, datawriter_id_odo,
                               &ub,topic_size_odo);
-    Vector3_odo_serialize_topic(&ub, &cmd_odo);
+    Point32_odo_serialize_topic(&ub, &cmd_odo);
 
 
     connected = uxr_run_session_until_timeout(&session, 200);
@@ -228,7 +228,7 @@ static void uxd_att_task(void *param){
 }
 
 
-static bool Vector3_serialize_topic(ucdrBuffer* writer, const Vector3* topic)
+static bool Point32_serialize_topic(ucdrBuffer* writer, const Point32* topic)
 {
     (void) ucdr_serialize_float(writer, topic->roll);
 
@@ -239,7 +239,7 @@ static bool Vector3_serialize_topic(ucdrBuffer* writer, const Vector3* topic)
     return !writer->error;
 }
 
-static bool Vector3_odo_serialize_topic(ucdrBuffer* writer, const Vector3_odo* topic)
+static bool Point32_odo_serialize_topic(ucdrBuffer* writer, const Point32_odo* topic)
 {
     (void) ucdr_serialize_float(writer, topic->x);
 
@@ -250,7 +250,7 @@ static bool Vector3_odo_serialize_topic(ucdrBuffer* writer, const Vector3_odo* t
     return !writer->error;
 }
 
-static uint32_t Vector3_size_of_topic(const Vector3* topic, uint32_t size)
+static uint32_t Point32_size_of_topic(const Point32* topic, uint32_t size)
 {
     uint32_t previousSize = size;
     size += ucdr_alignment(size, 8) + 8;
@@ -262,7 +262,7 @@ static uint32_t Vector3_size_of_topic(const Vector3* topic, uint32_t size)
     return size - previousSize;
 }
 
-static uint32_t Vector3_odo_size_of_topic(const Vector3_odo* topic, uint32_t size)
+static uint32_t Point32_odo_size_of_topic(const Point32_odo* topic, uint32_t size)
 {
     uint32_t previousSize = size;
     size += ucdr_alignment(size, 8) + 8;

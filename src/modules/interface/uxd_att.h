@@ -3,19 +3,19 @@
 #define MAX_TRANSPORT_MTU UXR_CONFIG_SERIAL_TRANSPORT_MTU
 #define BUFFER_SIZE    MAX_TRANSPORT_MTU * STREAM_HISTORY
 
-typedef struct Vector3
+typedef struct Point32
 {
     float roll;
     float pitch;
     float yaw;
-} Vector3;
+} Point32;
 
-typedef struct Vector3_odometry
+typedef struct Point32_odometry
 {
     float x;
     float y;
     float z;
-} Vector3_odo;
+} Point32_odo;
 
 struct ucdrBuffer;
 
