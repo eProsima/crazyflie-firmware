@@ -107,7 +107,9 @@ static void uxd_att_task(void *param){
                                                                 0,
                                                                 participant_xml,
                                                                 UXR_REPLACE);
-/*********************************TOPIC 1**************************************/
+
+/*****************************************************************************
+// Topic 1
   uxrObjectId topic_id = uxr_object_id(0x01, UXR_TOPIC_ID);
   const char* topic_xml = "<dds>"
                               "<topic>"
@@ -118,7 +120,7 @@ static void uxd_att_task(void *param){
   uint16_t topic_req = uxr_buffer_create_topic_xml(&session, reliable_out,
                                                     topic_id, participant_id,
                                                     topic_xml, UXR_REPLACE);
-/*********************************TOPIC 2**************************************/
+// Topic 2
   uxrObjectId topic_id_odo = uxr_object_id(0x02, UXR_TOPIC_ID);
   const char* topic_xml_odo = "<dds>"
                               "<topic>"
@@ -139,7 +141,7 @@ static void uxd_att_task(void *param){
                                                             publisher_xml,
                                                             UXR_REPLACE);
 
-/****************************Data Write 1**************************************/
+// DataWriter 1
   uxrObjectId datawriter_id = uxr_object_id(0x01, UXR_DATAWRITER_ID);
   const char* datawriter_xml = "<dds>"
                                    "<data_writer>"
@@ -157,7 +159,7 @@ static void uxd_att_task(void *param){
                                                               datawriter_xml,
                                                               UXR_REPLACE);
 
-/****************************Data Write 2**************************************/
+// DataWriter 2
   uxrObjectId datawriter_id_odo = uxr_object_id(0x02, UXR_DATAWRITER_ID);
   const char* datawriter_xml_odo = "<dds>"
                                    "<data_writer>"
@@ -184,8 +186,77 @@ static void uxd_att_task(void *param){
       DEBUG_PRINT("publisher: %i, datawriter_0: %i, datawriter_1: %i \r\n", status[3],status[4],status[5]);
       vTaskSuspend( NULL );
   }
+  ******************************************************************************/
 
-  //DEBUG_PRINT("init topic send\r\n");
+  // Provisional solution.
+  /**************************** Delete from here *******************************/
+
+  //Topic creation
+  uxrObjectId topic_id_odo = uxr_object_id(0x01, UXR_TOPIC_ID);
+  const char* topic_xml_odo = "<dds>"
+                                "<topic>"
+                                    "<dataType>geometry_msgs::msg::dds_::Point32_</dataType>"
+                                "</topic>"
+                            "</dds>";
+  uint16_t topic_req_odo = uxr_buffer_create_topic_xml(&session, reliable_out,
+                                                    topic_id_odo, participant_id,
+                                                    topic_xml_odo, UXR_REPLACE);
+
+  uxrObjectId publisher_id = uxr_object_id(0x01, UXR_PUBLISHER_ID);
+  const char* publisher_xml = "";
+  uint16_t publisher_req = uxr_buffer_create_publisher_xml(&session,
+                                                            reliable_out,
+                                                            publisher_id,
+                                                            participant_id,
+                                                            publisher_xml,
+                                                            UXR_REPLACE);
+
+  //Datawriter 1 creation.
+  uxrObjectId datawriter_id = uxr_object_id(0x01, UXR_DATAWRITER_ID);
+  const char* datawriter_xml = "<dds>"
+                                   "<data_writer>"
+                                       "<topic>"
+                                           "<kind>NO_KEY</kind>"
+                                           "<name>rt/drone/robot_pose</name>"
+                                           "<dataType>geometry_msgs::msg::dds_::Point32_</dataType>"
+                                       "</topic>"
+                                   "</data_writer>"
+                               "</dds>";
+  uint16_t datawriter_req = uxr_buffer_create_datawriter_xml(&session,
+                                                              reliable_out,
+                                                              datawriter_id,
+                                                              publisher_id,
+                                                              datawriter_xml,
+                                                              UXR_REPLACE);
+
+  //Datawriter 2 creation
+  uxrObjectId datawriter_id_odo = uxr_object_id(0x02, UXR_DATAWRITER_ID);
+  const char* datawriter_xml_odo = "<dds>"
+                                   "<data_writer>"
+                                       "<topic>"
+                                           "<kind>NO_KEY</kind>"
+                                           "<name>rt/drone/odometry</name>"
+                                           "<dataType>geometry_msgs::msg::dds_::Point32_</dataType>"
+                                       "</topic>"
+                                   "</data_writer>"
+                               "</dds>";
+  uint16_t datawriter_req_odo = uxr_buffer_create_datawriter_xml(&session,
+                                                              reliable_out,
+                                                              datawriter_id_odo,
+                                                              publisher_id,
+                                                              datawriter_xml_odo,
+                                                              UXR_REPLACE);
+
+  // Send create entities message and wait its status
+  uint8_t status[5];
+  uint16_t requests[5] = {participant_req,topic_req_odo,publisher_req,datawriter_req_odo,datawriter_req};
+  if(!uxr_run_session_until_all_status(&session, 1000, requests, status, 5))
+  {
+      vTaskSuspend( NULL );
+  }
+
+/********************************To here****************************************/
+
   connected = TRUE;
   //Get pitch, roll and yaw value
   pitchid = logGetVarId("stateEstimate", "pitch");
