@@ -46,7 +46,7 @@
 #define UXR_CONFIG_TCP_TRANSPORT_MTU                  512
 #endif
 #ifdef PROFILE_SERIAL_TRANSPORT
-#define UXR_CONFIG_SERIAL_TRANSPORT_MTU              512
+#define UXR_CONFIG_SERIAL_TRANSPORT_MTU              380
 #endif
 
 #endif // _UXR_CLIENT_CONFIG_H_
