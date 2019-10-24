@@ -78,7 +78,7 @@ static void uxd_att_task(void *param){
   const char* participant_xml = "<dds>"
                                     "<participant>"
                                         "<rtps>"
-                                            "<name>microteleop_attiude</name>"
+                                            "<name>crazyflie_node</name>"
                                         "</rtps>"
                                     "</participant>"
                                 "</dds>";
