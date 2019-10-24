@@ -1,30 +1,13 @@
-#include "debug.h"
-/*FreeRtos includes*/
-#include <string.h>
-#include <math.h>
-
 /*FreeRtos includes*/
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "crtp.h"
-#include "info.h"
-#include "version.h"
-#include "pm.h"
-
-#include "crtp.h"
-
-#include "syslink.h"
-#include "radiolink.h"
-
 #include "uxr/client/client.h"
 #include "ucdr/microcdr.h"
-
 
 #include <stdio.h> //printf
 #include <string.h> //strcmp
 #include <stdlib.h> //atoi
-#include <fcntl.h>  // O_RDWR, O_NOCTTY, O_NONBLOCK
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -35,9 +18,7 @@
 #include "crc.h"
 #include "worker.h"
 #include "num.h"
-
-#include "console.h"
-#include "cfassert.h"
+#include "debug.h"
 
 #include "uxd_att.h"
 
@@ -292,8 +273,7 @@ static void uxd_att_task(void *param){
                               &ub,topic_size_odo);
     Point32_odo_serialize_topic(&ub, &cmd_odo);
 
-
-    connected = uxr_run_session_until_timeout(&session, 200);
+    uxr_run_session_until_timeout(&session, 300);
 
     vTaskDelay(100/portTICK_RATE_MS);
   }
