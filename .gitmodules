@@ -10,3 +10,6 @@
 [submodule "vendor/CMSIS"]
 	path = vendor/CMSIS
 	url = https://github.com/ARM-software/CMSIS
+[submodule "vendor/Micro-CDR"]
+	path = vendor/Micro-CDR
+	url = https://github.com/eProsima/Micro-CDR.git
