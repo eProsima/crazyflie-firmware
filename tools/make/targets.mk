@@ -32,7 +32,8 @@ CCS_COMMAND_SILENT="  CCS   $@"
 	@$(if $(QUIET), ,echo $(CCS_COMMAND$(VERBOSE)) )
 	@$(CCS_COMMAND)
 
-LD_COMMAND=$(LD) $(LDFLAGS) $(foreach o,$(OBJ),$(BIN)/$(o)) -lm -o $@
+#LD_COMMAND=$(LD) $(LDFLAGS) $(foreach o,$(OBJ),$(BIN)/$(o)) -lm -o $@
+LD_COMMAND=$(LD) $(LDFLAGS) $(foreach o,$(OBJ),$(BIN)/$(o)) -lm   $(LDLINKS) -o $@
 LD_COMMAND_SILENT="  LD    $@"
 $(PROG).elf: $(OBJ)
 	@$(if $(QUIET), ,echo $(LD_COMMAND$(VERBOSE)) )

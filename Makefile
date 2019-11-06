@@ -113,8 +113,8 @@ VPATH += src/init src/hal/src src/modules/src src/utils/src src/drivers/bosch/sr
 
 
 # Micro-CDR
-VPATH += $(LIB)/Micro-CDR/src/c
-VPATH += $(LIB)/Micro-CDR/src/c/types
+#VPATH += $(LIB)/Micro-CDR/src/c
+#VPATH += $(LIB)/Micro-CDR/src/c/types
 
 # Micro-XRCE-DDS
 
@@ -258,8 +258,8 @@ PROJ_OBJ += libarm_math.a
 OBJ = $(FREERTOS_OBJ) $(PORT_OBJ) $(ST_OBJ) $(PROJ_OBJ) $(CRT0)
 
 # MicroCDR
-PROJ_OBJ += array.o basic.o sequence.o string.o
-PROJ_OBJ += common.o
+#PROJ_OBJ += array.o basic.o sequence.o string.o
+#PROJ_OBJ += common.o
 
 # micro-XRCE-DDS
 PROJ_OBJ += xrce_header.o xrce_protocol.o xrce_subheader.o
@@ -295,10 +295,14 @@ INCLUDES += -Ivendor/libdw1000/inc
 INCLUDES += -I$(LIB)/FatFS
 INCLUDES += -I$(LIB)/vl53l1
 INCLUDES += -I$(LIB)/vl53l1/core/inc
-INCLUDES += -I$(LIB)/Micro-CDR/src
-INCLUDES += -I$(LIB)/Micro-CDR/include
+#INCLUDES += -I$(LIB)/Micro-CDR/src
+#INCLUDES += -I$(LIB)/Micro-CDR/include
 INCLUDES += -I$(LIB)/micro-XRCE-DDS/include
 INCLUDES += -I$(LIB)/micro-XRCE-DDS/src
+INCLUDES += -Ivendor/Micro-CDR/include
+INCLUDES += -Ivendor/Micro-CDR/build/include
+
+LDLINKS += -Lvendor/Micro-CDR/build -lmicrocdr
 
 ifeq ($(DEBUG), 1)
   CFLAGS += -O0 -g3 -DDEBUG
@@ -365,6 +369,13 @@ endif
 all: check_submodules build
 build:
 # Each target is in a different line, so they are executed one after the other even when the processor has multiple cores (when the -j option for the make command is > 1). See: https://www.gnu.org/software/make/manual/html_node/Parallel.html
+	mkdir vendor/Micro-CDR/build
+	cd vendor/Micro-CDR/build && cmake -DCMAKE_TOOLCHAIN_FILE=../toolchain.cmake ..
+		-DCROSSDEV=$(CC) \
+		-DARCH_CPU_FLAGS="$(ASFLAGS)" \
+		-DARCH_OPT_FLAGS="$(ARCHOPTIMIZATION)"
+
+	cd vendor/Micro-CDR/build &&  make
 	@$(MAKE) --no-print-directory clean_version
 	@$(MAKE) --no-print-directory compile
 	@$(MAKE) --no-print-directory print_version
