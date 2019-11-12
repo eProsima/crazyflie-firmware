@@ -2,8 +2,10 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "uxr/client/client.h"
-#include "ucdr/microcdr.h"
+#include <uxr/client/client.h>
+#include <uxr/client/profile/transport/serial/serial_transport.h>
+#include <uxr/client/profile/transport/serial/serial_transport_crazyflie.h>
+#include <ucdr/microcdr.h>
 
 #include <stdio.h> //printf
 #include <string.h> //strcmp
@@ -45,10 +47,12 @@ void uxd_att_init(){
 static void uxd_att_task(void *param){
 
 //Init micro-XRCE-DDS session.
+
   vTaskDelay(10000);
   int radio_connected = logGetVarId("radio", "isConnected");
   while(!logGetUint(radio_connected)) vTaskDelay(100);
   DEBUG_PRINT("Radio connected\r\n");
+
 
   if(!uxr_init_serial_transport(&transport, &serial_platform, 0, 0, 1)){
     DEBUG_PRINT("Error: Init serial transport fail \r\n");
