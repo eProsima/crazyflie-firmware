@@ -13,3 +13,6 @@
 [submodule "vendor/Micro-CDR"]
 	path = vendor/Micro-CDR
 	url = https://github.com/eProsima/Micro-CDR.git
+[submodule "vendor/Micro-XRCE-DDS-Client"]
+	path = vendor/Micro-XRCE-DDS-Client
+	url = https://github.com/eProsima/Micro-XRCE-DDS-Client

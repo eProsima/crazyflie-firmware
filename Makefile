@@ -118,12 +118,12 @@ VPATH += src/init src/hal/src src/modules/src src/utils/src src/drivers/bosch/sr
 
 # Micro-XRCE-DDS
 
-VPATH += $(LIB)/micro-XRCE-DDS/src/c/core/log
-VPATH += $(LIB)/micro-XRCE-DDS/src/c/core/serialization
-VPATH += $(LIB)/micro-XRCE-DDS/src/c/core/session
-VPATH += $(LIB)/micro-XRCE-DDS/src/c/core/session/stream
-VPATH += $(LIB)/micro-XRCE-DDS/src/c/profile/transport/serial
-VPATH += $(LIB)/micro-XRCE-DDS/src/c/util
+#VPATH += $(LIB)/micro-XRCE-DDS/src/c/core/log
+#VPATH += $(LIB)/micro-XRCE-DDS/src/c/core/serialization
+#VPATH += $(LIB)/micro-XRCE-DDS/src/c/core/session
+#VPATH += $(LIB)/micro-XRCE-DDS/src/c/core/session/stream
+#VPATH += $(LIB)/micro-XRCE-DDS/src/c/profile/transport/serial
+#VPATH += $(LIB)/micro-XRCE-DDS/src/c/util
 
 
 ############### Source files configuration ################
@@ -262,13 +262,13 @@ OBJ = $(FREERTOS_OBJ) $(PORT_OBJ) $(ST_OBJ) $(PROJ_OBJ) $(CRT0)
 #PROJ_OBJ += common.o
 
 # micro-XRCE-DDS
-PROJ_OBJ += xrce_header.o xrce_protocol.o xrce_subheader.o
-PROJ_OBJ += common_create_entities.o create_entities_ref.o create_entities_xml.o
-PROJ_OBJ += object_id.o read_access.o session.o session_info.o submessage.o
-PROJ_OBJ += write_access.o input_best_effort_stream.o input_reliable_stream.o
-PROJ_OBJ += output_best_effort_stream.o output_reliable_stream.o seq_num.o
-PROJ_OBJ += stream_id.o stream_storage.o serial_protocol.o serial_transport.o
-PROJ_OBJ += serial_transport_freertos.o time.o
+#PROJ_OBJ += xrce_header.o xrce_protocol.o xrce_subheader.o
+#PROJ_OBJ += common_create_entities.o create_entities_ref.o create_entities_xml.o
+#PROJ_OBJ += object_id.o read_access.o session.o session_info.o submessage.o
+#PROJ_OBJ += write_access.o input_best_effort_stream.o input_reliable_stream.o
+#PROJ_OBJ += output_best_effort_stream.o output_reliable_stream.o seq_num.o
+#PROJ_OBJ += stream_id.o stream_storage.o serial_protocol.o serial_transport.o
+#PROJ_OBJ += serial_transport_freertos.o time.o
 
 ############### Compilation configuration ################
 AS = $(CROSS_COMPILE)as
@@ -295,14 +295,14 @@ INCLUDES += -Ivendor/libdw1000/inc
 INCLUDES += -I$(LIB)/FatFS
 INCLUDES += -I$(LIB)/vl53l1
 INCLUDES += -I$(LIB)/vl53l1/core/inc
-#INCLUDES += -I$(LIB)/Micro-CDR/src
-#INCLUDES += -I$(LIB)/Micro-CDR/include
-INCLUDES += -I$(LIB)/micro-XRCE-DDS/include
-INCLUDES += -I$(LIB)/micro-XRCE-DDS/src
+
 INCLUDES += -Ivendor/Micro-CDR/include
 INCLUDES += -Ivendor/Micro-CDR/build/include
+INCLUDES += -Ivendor/Micro-XRCE-DDS-Client/include
+INCLUDES += -Ivendor/Micro-XRCE-DDS-Client/build/include
 
-LDLINKS += -Lvendor/Micro-CDR/build -lmicrocdr
+PROJ_OBJ += ../vendor/Micro-XRCE-DDS-Client/build/libmicroxrcedds_client.a
+PROJ_OBJ += ../vendor/Micro-CDR/build/libmicrocdr.a
 
 ifeq ($(DEBUG), 1)
   CFLAGS += -O0 -g3 -DDEBUG
@@ -369,13 +369,20 @@ endif
 all: check_submodules build
 build:
 # Each target is in a different line, so they are executed one after the other even when the processor has multiple cores (when the -j option for the make command is > 1). See: https://www.gnu.org/software/make/manual/html_node/Parallel.html
+	rm -rf vendor/Micro-CDR/build
+	rm -rf vendor/Micro-XRCE-DDS-Client/build
 	mkdir vendor/Micro-CDR/build
-	cd vendor/Micro-CDR/build && cmake -DCMAKE_TOOLCHAIN_FILE=../toolchain.cmake ..
+	cd vendor/Micro-CDR/build && cmake -DCMAKE_TOOLCHAIN_FILE=../../Micro-XRCE-DDS-Client/toolchains/cf_toolchain.cmake ..\
 		-DCROSSDEV=$(CC) \
-		-DARCH_CPU_FLAGS="$(ASFLAGS)" \
-		-DARCH_OPT_FLAGS="$(ARCHOPTIMIZATION)"
+		-DTHIRDPARTY=ON \
+		-DCMAKE_INSTALL_PREFIX="../../Micro-XRCE-DDS-Client/build/temp_install"
+	cd vendor/Micro-CDR/build &&  make && make install
 
-	cd vendor/Micro-CDR/build &&  make
+	cd vendor/Micro-XRCE-DDS-Client/build && cmake -DCMAKE_TOOLCHAIN_FILE=../toolchains/cf_toolchain.cmake ..\
+		-DCROSSDEV=$(CC) \
+		-DTHIRDPARTY=ON
+	cd vendor/Micro-XRCE-DDS-Client/build &&  make
+
 	@$(MAKE) --no-print-directory clean_version
 	@$(MAKE) --no-print-directory compile
 	@$(MAKE) --no-print-directory print_version
