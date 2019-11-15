@@ -171,7 +171,7 @@ PROJ_OBJ += deck.o deck_info.o deck_drivers.o deck_test.o
 PROJ_OBJ += deck_constants.o
 PROJ_OBJ += deck_digital.o
 PROJ_OBJ += deck_analog.o
-PROJ_OBJ += deck_spi.o uxd_att.o
+PROJ_OBJ += deck_spi.o
 
 # Decks
 PROJ_OBJ += bigquad.o
@@ -270,17 +270,10 @@ INCLUDES += -I$(LIB)/vl53l1
 INCLUDES += -I$(LIB)/vl53l1/core/inc
 
 ifeq ($(MICRO_XRCE_DDS), ON)
-	#Micro-XRCE-DDS Client
-	PROJ_OBJ +=  uxd_att.o
-
-	INCLUDES += -Ivendor/Micro-CDR/include
-	INCLUDES += -Ivendor/Micro-CDR/build/include
-	INCLUDES += -Ivendor/Micro-XRCE-DDS-Client/include
-	INCLUDES += -Ivendor/Micro-XRCE-DDS-Client/build/include
-
-	PROJ_OBJ += ../vendor/Micro-XRCE-DDS-Client/build/libmicroxrcedds_client.a
-	PROJ_OBJ += ../vendor/Micro-CDR/build/libmicrocdr.a
-
+PROJ_OBJ +=  uxd_att.o #Micro-XRCE-DDS Example
+INCLUDES +=  -I$(LIB)/Micro-XRCE-DDS
+PROJ_OBJ += libmicroxrcedds_client.a
+PROJ_OBJ += vendor/micro-XRCE-DDS/lib/libmicrocdr.a
 endif
 
 ifeq ($(DEBUG), 1)
@@ -348,7 +341,6 @@ endif
 all: check_submodules build
 build:
 # Each target is in a different line, so they are executed one after the other even when the processor has multiple cores (when the -j option for the make command is > 1). See: https://www.gnu.org/software/make/manual/html_node/Parallel.html
-
 	@$(MAKE) --no-print-directory clean_version
 	@$(MAKE) --no-print-directory compile
 	@$(MAKE) --no-print-directory print_version
@@ -425,20 +417,21 @@ prep:
 check_submodules:
 	@$(PYTHON2) tools/make/check-for-submodules.py
 
-micro-xrce-dds:
-
-	@rm -rf vendor/Micro-CDR/build
+libmicroxrcedds_client.a:
+	@echo $(shell pwd)
 	@rm -rf vendor/Micro-XRCE-DDS-Client/build
-	@mkdir vendor/Micro-CDR/build
-	@cd vendor/Micro-CDR/build && cmake -DCMAKE_TOOLCHAIN_FILE=../../Micro-XRCE-DDS-Vendors/Crazyflie/toolchain/cf_toolchain.cmake ..\
-		-DTHIRDPARTY=ON \
-		-DCMAKE_INSTALL_PREFIX="../../Micro-XRCE-DDS-Client/build/temp_install"
-	@cd vendor/Micro-CDR/build &&  make && make install
+	mkdir vendor/Micro-XRCE-DDS-Client/build
+	
+	@cd vendor/Micro-XRCE-DDS-Client/build && cmake ..\
+		-DCMAKE_TOOLCHAIN_FILE=$(shell pwd)/vendor/Micro-XRCE-DDS-Vendors/Crazyflie/toolchain/cf_toolchain.cmake \
+		-DCROSSDEV="$(CC)" \
+		-DCMAKE_SYSROOT_PATH=$(shell pwd)/vendor/Micro-XRCE-DDS-Client \
+		-DCMAKE_VENDOR_PATH=$(shell pwd)/vendor/Micro-XRCE-DDS-Vendors/Crazyflie \
+		-DCMAKE_INSTALL_INCLUDEDIR=$(shell pwd)/src/lib/Micro-XRCE-DDS \
+		-DCMAKE_INSTALL_LIBDIR=$(shell pwd)/bin \
+		-DCMAKE_INSTALL_PREFIX=$(shell pwd)/bin/vendor/micro-XRCE-DDS
+	@cd vendor/Micro-XRCE-DDS-Client/build &&  make && make install
 
-	@cd vendor/Micro-XRCE-DDS-Client/build && cmake -DCMAKE_TOOLCHAIN_FILE=../../Micro-XRCE-DDS-Vendors/Crazyflie/toolchain/cf_toolchain.cmake ..\
-		-DCROSSDEV=$(CC) \
-		-DTHIRDPARTY=ON
-	@cd vendor/Micro-XRCE-DDS-Client/build &&  make
 
 
 include tools/make/targets.mk
