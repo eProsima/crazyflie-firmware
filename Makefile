@@ -320,12 +320,24 @@ VPATH += $(BIN)
 #Dependency files to include
 DEPS := $(foreach o,$(OBJ),$(BIN)/dep/$(o).d)
 
+################# Micro-XRCE-DDS. ############################
+ifeq ($(MICRO_XRCE_DDS), ON)
+PROJ_OBJ +=  uxd_att.o #Micro-XRCE-DDS Example
+
+PROJ_OBJ += libmicroxrcedds_client.a
+PROJ_OBJ += vendor/micro-XRCE-DDS/lib/libmicrocdr.a
+
+INCLUDES +=  -I$(LIB)/Micro-XRCE-DDS
+INCLUDES +=  -I$(LIB)/Micro-CDR
+endif
+
 ##################### Misc. ################################
 ifeq ($(SHELL),/bin/sh)
   COL_RED=\033[1;31m
   COL_GREEN=\033[1;32m
   COL_RESET=\033[m
 endif
+
 
 #################### Targets ###############################
 
@@ -417,3 +429,18 @@ include tools/make/targets.mk
 unit:
 # The flag "-DUNITY_INCLUDE_DOUBLE" allows comparison of double values in Unity. See: https://stackoverflow.com/a/37790196
 	rake unit "DEFINES=$(CFLAGS) -DUNITY_INCLUDE_DOUBLE" "FILES=$(FILES)"
+
+micro-xrce-dds:
+	+rm -rf vendor/Micro-XRCE-DDS-Client/build
+	+mkdir vendor/Micro-XRCE-DDS-Client/build
+	
+	+cd vendor/Micro-XRCE-DDS-Client/build && cmake ..\
+		-DCMAKE_TOOLCHAIN_FILE=$(shell pwd)/vendor/Micro-XRCE-DDS-Vendors/Crazyflie/toolchain/cf_toolchain.cmake \
+		-DCROSSDEV="$(CC)" \
+		-DCMAKE_SYSROOT_PATH=$(shell pwd)/vendor/Micro-XRCE-DDS-Client \
+		-DCMAKE_VENDOR_PATH=$(shell pwd)/vendor/Micro-XRCE-DDS-Vendors/Crazyflie \
+		-DCMAKE_INSTALL_INCLUDEDIR=$(shell pwd)/src/lib/Micro-XRCE-DDS \
+		-DCMAKE_INSTALL_LIBDIR=$(shell pwd)/bin \
+		-DCMAKE_INSTALL_PREFIX=$(shell pwd)/bin/vendor/micro-XRCE-DDS
+	+cd vendor/Micro-XRCE-DDS-Client/build &&  make && make install
+	+cp -rf vendor/Micro-XRCE-DDS-Client/build/temp_install/include src/lib/Micro-CDR
