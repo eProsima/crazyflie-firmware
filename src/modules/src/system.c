@@ -163,7 +163,7 @@ void systemTask(void *arg)
   commInit();
   commanderInit();
 
-  StateEstimatorType estimator = complementaryEstimator;
+  StateEstimatorType estimator = anyEstimator;
   deckInit();
   estimator = deckGetRequiredEstimator();
   stabilizerInit(estimator);
