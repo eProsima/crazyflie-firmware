@@ -10,9 +10,9 @@
 [submodule "vendor/CMSIS"]
 	path = vendor/CMSIS
 	url = https://github.com/ARM-software/CMSIS
-[submodule "vendor/Micro-XRCE-DDS-Client"]
-	path = vendor/Micro-XRCE-DDS-Client
-	url = https://github.com/eProsima/Micro-XRCE-DDS-Client
 [submodule "vendor/Micro-XRCE-DDS-Vendors"]
 	path = vendor/Micro-XRCE-DDS-Vendors
 	url = https://github.com/eProsima/Micro-XRCE-DDS-Vendors
+[submodule "vendor/Micro-XRCE-DDS-Client"]
+	path = vendor/Micro-XRCE-DDS-Client
+	url = https://github.com/eProsima/Micro-XRCE-DDS-Client
