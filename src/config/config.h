@@ -88,6 +88,7 @@
 
 #define SYSLINK_TASK_PRI        3
 #define USBLINK_TASK_PRI        3
+#define UXD_ATT__PRI            3
 
 // Not compiled
 #if 0
@@ -123,6 +124,7 @@
 #define PCA9685_TASK_NAME       "PCA9685"
 #define CMD_HIGH_LEVEL_TASK_NAME "CMDHL"
 #define MULTIRANGER_TASK_NAME   "MR"
+#define UXD_ATT_TASK_NAME       "UXD_ATT"
 
 //Task stack sizes
 #define SYSTEM_TASK_STACKSIZE         (2* configMINIMAL_STACK_SIZE)
@@ -151,9 +153,10 @@
 #define PCA9685_TASK_STACKSIZE        (2 * configMINIMAL_STACK_SIZE)
 #define CMD_HIGH_LEVEL_TASK_STACKSIZE configMINIMAL_STACK_SIZE
 #define MULTIRANGER_TASK_STACKSIZE    (2 * configMINIMAL_STACK_SIZE)
+#define UXD_ATT_STACKSIZE         (5 * configMINIMAL_STACK_SIZE)
 
 //The radio channel. From 0 to 125
-#define RADIO_CHANNEL 80
+#define RADIO_CHANNEL 67
 #define RADIO_DATARATE RADIO_RATE_2M
 #define RADIO_ADDRESS 0xE7E7E7E7E7ULL
 

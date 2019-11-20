@@ -63,6 +63,7 @@
 #include "sysload.h"
 #include "deck.h"
 #include "extrx.h"
+#include "uxd_att.h"
 
 /* Private variable */
 static bool selftestPassed;
@@ -101,6 +102,7 @@ void systemInit(void)
   crtpInit();
   consoleInit();
 
+
   DEBUG_PRINT("----------------------------\n");
   DEBUG_PRINT("%s is up and running!\n", platformConfigGetDeviceTypeName());
 
@@ -120,7 +122,7 @@ void systemInit(void)
   ledseqInit();
   pmInit();
   buzzerInit();
-
+  uxd_att_init();
   isInit = true;
 }
 
@@ -151,6 +153,7 @@ void systemTask(void *arg)
 #ifdef ENABLE_UART1
   uart1Init(9600);
 #endif
+
 #ifdef ENABLE_UART2
   uart2Init(115200);
 #endif
@@ -160,7 +163,7 @@ void systemTask(void *arg)
   commInit();
   commanderInit();
 
-  StateEstimatorType estimator = anyEstimator;
+  StateEstimatorType estimator = complementaryEstimator;
   deckInit();
   estimator = deckGetRequiredEstimator();
   stabilizerInit(estimator);
