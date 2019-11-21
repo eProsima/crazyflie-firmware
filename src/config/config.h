@@ -54,7 +54,7 @@
   #define CONFIG_BLOCK_ADDRESS    (2048 * (64-1))
   #define MCU_ID_ADDRESS          0x1FFF7A10
   #define MCU_FLASH_SIZE_ADDRESS  0x1FFF7A22
-  #define FREERTOS_HEAP_SIZE      40000
+  #define FREERTOS_HEAP_SIZE      53000
   #define FREERTOS_MIN_STACK_SIZE 150       // M4-FPU register setup is bigger so stack needs to be bigger
   #define FREERTOS_MCU_CLOCK_HZ   168000000
 
@@ -153,7 +153,7 @@
 #define PCA9685_TASK_STACKSIZE        (2 * configMINIMAL_STACK_SIZE)
 #define CMD_HIGH_LEVEL_TASK_STACKSIZE configMINIMAL_STACK_SIZE
 #define MULTIRANGER_TASK_STACKSIZE    (2 * configMINIMAL_STACK_SIZE)
-#define UXD_ATT_STACKSIZE         (5 * configMINIMAL_STACK_SIZE)
+#define UXD_ATT_STACKSIZE         (14 * configMINIMAL_STACK_SIZE)
 
 //The radio channel. From 0 to 125
 #define RADIO_CHANNEL 67
