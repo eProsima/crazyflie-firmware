@@ -296,21 +296,18 @@ INCLUDES += -I$(LIB)/FatFS
 INCLUDES += -I$(LIB)/vl53l1
 INCLUDES += -I$(LIB)/vl53l1/core/inc
 
-INCLUDES += -Ivendor/Micro-CDR/include
-INCLUDES += -Ivendor/Micro-CDR/build/include
-INCLUDES += -Ivendor/Micro-XRCE-DDS-Client/include
-INCLUDES += -Ivendor/Micro-XRCE-DDS-Client/build/include
-
-PROJ_OBJ += ../vendor/Micro-XRCE-DDS-Client/build/libmicroxrcedds_client.a
-PROJ_OBJ += ../vendor/Micro-CDR/build/libmicrocdr.a
+include ../crazyflie_microros_extensions/Makefile
+PROJ_OBJ += $(MICROROS_LIBRARIES)
+INCLUDES += $(MICROROS_INCLUDES)
+VPATH += $(MICROROS_POSIX_FREERTOS_OBJECTS_VPATH)
+FREERTOS_OBJ += $(MICROROS_POSIX_FREERTOS_OBJECTS)
 
 ifeq ($(DEBUG), 1)
   CFLAGS += -O0 -g3 -DDEBUG
   # Prevent silent errors when converting between types (requires explicit casting)
   CFLAGS += -Wconversion
 else
-	# Fail on warnings
-  #CFLAGS += -Os -g3 -Werror
+  CFLAGS += -Os -g3 #-Werror
 endif
 
 ifeq ($(LTO), 1)
@@ -369,20 +366,6 @@ endif
 all: check_submodules build
 build:
 # Each target is in a different line, so they are executed one after the other even when the processor has multiple cores (when the -j option for the make command is > 1). See: https://www.gnu.org/software/make/manual/html_node/Parallel.html
-	rm -rf vendor/Micro-CDR/build
-	rm -rf vendor/Micro-XRCE-DDS-Client/build
-	mkdir vendor/Micro-CDR/build
-	cd vendor/Micro-CDR/build && cmake -DCMAKE_TOOLCHAIN_FILE=../../Micro-XRCE-DDS-Client/toolchains/cf_toolchain.cmake ..\
-		-DCROSSDEV=$(CC) \
-		-DTHIRDPARTY=ON \
-		-DCMAKE_INSTALL_PREFIX="../../Micro-XRCE-DDS-Client/build/temp_install"
-	cd vendor/Micro-CDR/build &&  make && make install
-
-	cd vendor/Micro-XRCE-DDS-Client/build && cmake -DCMAKE_TOOLCHAIN_FILE=../toolchains/cf_toolchain.cmake ..\
-		-DCROSSDEV=$(CC) \
-		-DTHIRDPARTY=ON
-	cd vendor/Micro-XRCE-DDS-Client/build &&  make
-
 	@$(MAKE) --no-print-directory clean_version
 	@$(MAKE) --no-print-directory compile
 	@$(MAKE) --no-print-directory print_version
