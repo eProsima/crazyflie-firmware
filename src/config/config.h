@@ -124,7 +124,7 @@
 #define PCA9685_TASK_NAME       "PCA9685"
 #define CMD_HIGH_LEVEL_TASK_NAME "CMDHL"
 #define MULTIRANGER_TASK_NAME   "MR"
-#define UXD_ATT_TASK_NAME       "UXD_ATT"
+#define MICROROS_NAME       "MICROROS"
 
 //Task stack sizes
 #define SYSTEM_TASK_STACKSIZE         (2* configMINIMAL_STACK_SIZE)

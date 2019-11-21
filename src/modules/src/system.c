@@ -63,7 +63,7 @@
 #include "sysload.h"
 #include "deck.h"
 #include "extrx.h"
-#include "uxd_att.h"
+#include "microros.h"
 
 /* Private variable */
 static bool selftestPassed;
@@ -122,7 +122,7 @@ void systemInit(void)
   ledseqInit();
   pmInit();
   buzzerInit();
-  uxd_att_init();
+  microros_init();
   isInit = true;
 }
 
