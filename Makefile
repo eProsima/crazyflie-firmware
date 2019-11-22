@@ -111,21 +111,6 @@ endif
 # Crazyflie sources
 VPATH += src/init src/hal/src src/modules/src src/utils/src src/drivers/bosch/src src/drivers/src src/platform
 
-
-# Micro-CDR
-#VPATH += $(LIB)/Micro-CDR/src/c
-#VPATH += $(LIB)/Micro-CDR/src/c/types
-
-# Micro-XRCE-DDS
-
-#VPATH += $(LIB)/micro-XRCE-DDS/src/c/core/log
-#VPATH += $(LIB)/micro-XRCE-DDS/src/c/core/serialization
-#VPATH += $(LIB)/micro-XRCE-DDS/src/c/core/session
-#VPATH += $(LIB)/micro-XRCE-DDS/src/c/core/session/stream
-#VPATH += $(LIB)/micro-XRCE-DDS/src/c/profile/transport/serial
-#VPATH += $(LIB)/micro-XRCE-DDS/src/c/util
-
-
 ############### Source files configuration ################
 
 # Init
@@ -185,7 +170,7 @@ PROJ_OBJ += deck.o deck_info.o deck_drivers.o deck_test.o
 PROJ_OBJ += deck_constants.o
 PROJ_OBJ += deck_digital.o
 PROJ_OBJ += deck_analog.o
-PROJ_OBJ += deck_spi.o uxd_att.o
+PROJ_OBJ += deck_spi.o 
 
 # Decks
 PROJ_OBJ += bigquad.o
@@ -257,19 +242,6 @@ PROJ_OBJ += libarm_math.a
 
 OBJ = $(FREERTOS_OBJ) $(PORT_OBJ) $(ST_OBJ) $(PROJ_OBJ) $(CRT0)
 
-# MicroCDR
-#PROJ_OBJ += array.o basic.o sequence.o string.o
-#PROJ_OBJ += common.o
-
-# micro-XRCE-DDS
-#PROJ_OBJ += xrce_header.o xrce_protocol.o xrce_subheader.o
-#PROJ_OBJ += common_create_entities.o create_entities_ref.o create_entities_xml.o
-#PROJ_OBJ += object_id.o read_access.o session.o session_info.o submessage.o
-#PROJ_OBJ += write_access.o input_best_effort_stream.o input_reliable_stream.o
-#PROJ_OBJ += output_best_effort_stream.o output_reliable_stream.o seq_num.o
-#PROJ_OBJ += stream_id.o stream_storage.o serial_protocol.o serial_transport.o
-#PROJ_OBJ += serial_transport_freertos.o time.o
-
 ############### Compilation configuration ################
 AS = $(CROSS_COMPILE)as
 CC = $(CROSS_COMPILE)gcc
@@ -297,6 +269,7 @@ INCLUDES += -I$(LIB)/vl53l1
 INCLUDES += -I$(LIB)/vl53l1/core/inc
 
 include ../crazyflie_microros_extensions/Makefile
+PROJ_OBJ += microros.o
 PROJ_OBJ += $(MICROROS_LIBRARIES)
 INCLUDES += $(MICROROS_INCLUDES)
 VPATH += $(MICROROS_POSIX_FREERTOS_OBJECTS_VPATH)
