@@ -186,8 +186,8 @@ static void microros_task(void *param){
     odom.y = y;
     odom.z = z;
 
-    rcl_publish( &pub_odom, (const void *) &odom);
-    rcl_publish( &pub_attitude, (const void *) &pose);
+    rcl_publish( &pub_odom, (const void *) &odom, NULL);
+    rcl_publish( &pub_attitude, (const void *) &pose, NULL);
 
     vTaskDelay(100/portTICK_RATE_MS);
   }
